@@ -1,0 +1,195 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech to Text Khmer</title>
+    <link href="../assets/img/profile.jpeg" rel="icon">
+
+    <!-- Template Main CSS File -->
+    <link href="../assets/css/style.css" rel="stylesheet">
+
+    <style>
+
+        body {
+            margin: 16;
+            padding: 0;
+        }
+
+        article {
+            text-align: center;
+        }
+
+        .content {
+            padding: 20;
+        }
+
+    </style>
+
+</head>
+<body>
+
+    <main id="main">
+        <article>
+            <h2>Flutter Speech to Text Khmer Demo</h2>
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0EQtcPCQvvJ41ykYuIQr-fpycm6IY_TSdj23BM7jb6g&" >
+            <p>This article serves as a demonstration project showcasing the utilization of Flutter's Speech to Text functionality. </p>
+        </article>
+
+        <div class="content">
+            <h4 class="w-title"> Getting Started </h4>
+            <ol>
+                <li style="font-weight: bold;"> <b class="w-title">Adding packages</b></li>
+                <md-block>
+                    ```yaml
+                        speech_to_text: latest_version
+                        avatar_glow: latest_version
+                    ```
+                </md-block>
+                <li style="font-weight: bold;"> <b class="w-title">Full Example Code</b></li>
+                <md-block>
+                    ```dart
+                    import 'package:avatar_glow/avatar_glow.dart';
+                    import 'package:flutter/material.dart';
+                    import 'package:speech_to_text/speech_to_text.dart';
+                    
+                    class SpeechToTextPage extends StatefulWidget {
+                      const SpeechToTextPage({super.key});
+                    
+                      @override
+                      State<SpeechToTextPage> createState() => _SpeechToTextPageState();
+                    }
+                    
+                    class _SpeechToTextPageState extends State<SpeechToTextPage> {
+                      final SpeechToText _speechToText = SpeechToText();
+                    
+                      bool _speechEnabled = false;
+                      String _wordsSpoken = "";
+                      double _confidenceLevel = 0;
+                    
+                      @override
+                      void initState() {
+                        super.initState();
+                        initSpeech();
+                      }
+                    
+                      void initSpeech() async {
+                        _speechEnabled = await _speechToText.initialize();
+                        setState(() {});
+                      }
+                    
+                      void _startListening() async {
+                        await _speechToText.listen(onResult: _onSpeechResult, localeId: "km_Km",); /// to support speech in Khmer
+                        setState(() {
+                          _confidenceLevel = 0;
+                        });
+                      }
+                    
+                      void _stopListening() async {
+                        await _speechToText.stop();
+                        setState(() {});
+                      }
+                    
+                      void _onSpeechResult(result) {
+                        setState(() {
+                          _wordsSpoken = "${result.recognizedWords}";
+                          _confidenceLevel = result.confidence;
+                        });
+                      }
+                    
+                      @override
+                      Widget build(BuildContext context) {
+                        return Scaffold(
+                          appBar: AppBar(
+                            backgroundColor: Colors.deepPurple,
+                            title: const Text(
+                              'កម្មវិធីបម្លែងសម្លេងទៅជាអក្សរ',
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          body: Center(
+                            child: Column(
+                              children: [
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  padding: const EdgeInsets.all(16),
+                                  child: Text(
+                                    _speechToText.isListening
+                                        ? "កំពុងដំណើរការ..."
+                                        : _speechEnabled
+                                            ? "សូមចុចលើរូប 🎤 ដើម្បីនិយាយ"
+                                            : "មានកំហុសឆ្គងក្នុងការបម្លែងសម្លេង!",
+                                    style: const TextStyle(fontSize: 20.0),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    child: Text(
+                                      _wordsSpoken,
+                                      style: TextStyle(
+                                        fontSize: 25,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.blue[900]
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                if (_speechToText.isNotListening && _confidenceLevel > 0)
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      bottom: 100,
+                                    ),
+                                    child: RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          const TextSpan(text: "កម្រិតទំនុកចិត្ត: ",style: TextStyle(fontFamily: 'KhmerOSsiemreap', color: Colors.black, fontWeight: FontWeight.w300, fontSize: 25.0)),
+                                          TextSpan(text: "${(_confidenceLevel * 100).toStringAsFixed(1)}%",style: const  TextStyle(fontFamily: 'KhmerOSsiemreap', color: Colors.green, fontWeight: FontWeight.w600, fontSize: 30.0)),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          floatingActionButton: AvatarGlow(
+                            animate: _speechToText.isListening,
+                            duration: const Duration(milliseconds: 2000),
+                            glowColor: Colors.purpleAccent,
+                            repeat: true,
+                            child: InkWell(
+                              onTap: () {
+                                _speechToText.isListening ? _stopListening() : _startListening();
+                              },
+                              child: CircleAvatar(
+                                backgroundColor: Colors.deepPurple,
+                                radius: 30,
+                                child: Icon(
+                                  _speechToText.isNotListening ? Icons.mic_off : Icons.mic,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+                    }
+                    ```
+                </md-block>
+                <li style="font-weight: bold;"> <b class="w-title">Example Result</b></li>
+                <br>
+                <img src="../assets/blog/stt.png" width="300px" height="600px">
+                <span></span>
+                <img src="../assets/blog/stt_kh.png" width="300px" height="600px">
+            </ol>
+        </div>
+
+    </main>
+<!-- 
+    <script src="../assets/js/custom_md.js"></script> -->
+    <script type="module" src="https://md-block.verou.me/md-block.js"></script>
+    
+</body>
+
+</html>
