@@ -1,0 +1,376 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flutter Gemini AI</title>
+    <link href="../assets/img/profile.jpeg" rel="icon">
+
+    <!-- Template Main CSS File -->
+    <link href="../assets/css/style.css" rel="stylesheet">
+
+    <style>
+        main {
+            margin: 24;
+        }
+
+        article {
+            text-align: center;
+        }
+
+        footer {
+            background-color: rgb(245, 245, 245);
+        }
+
+        p.copyright {
+            color: #000;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <main id="main">
+        <article>
+            <h2>Flutter Gemini AI Demo</h2>
+            <img
+                src="https://i.ytimg.com/vi/4sCa4ekLB5Q/maxresdefault.jpg" width="300px" height="150px">
+            <p>This article serves as a demonstration project showcasing the utilization of Flutter's Gemini AI API. </p>
+        </article>
+
+        <div class="content">
+            <h4 class="w-title"> Getting Started </h4>
+            <ol>
+                <li style="font-weight: bold;"> <b class="w-title">Adding packages</b></li>
+                    <md-block>
+                        ```yaml
+                        google_generative_ai: latest_version
+                        flutter_markdown: latest_version
+                        ```
+                    </md-block>
+                <li style="font-weight: bold;"> <b class="w-title">Folder Structure</b></li>
+                    <md-block>
+                        <pre>
+
+                            📦lib
+                                ┣ 📂core
+                                ┃ ┣ 📂config
+                                ┃ ┃ ┃ ┣ 📜gpt_config.dart
+                                ┣ 📜ks_google_ai.dart
+                                ┣ 📜main.dart
+                        </pre>
+                    </md-block>
+                <li style="font-weight: bold;"> <b class="w-title">Full Example Code</b></li>
+                    <ol>
+                        <li style="font-weight: bold;"> <b class="w-title">gpt_config.dart</b></li>
+                            <md-block>
+                                ```dart
+                                import 'package:google_generative_ai/google_generative_ai.dart';
+                                
+                                ///
+                                /// [AIConfig]
+                                ///
+                                class AIConfig {
+                                    // Generate Gemini API Key from this link: https://aistudio.google.com/app/apikey
+                                    static const _apiKey = "YOUR_GEMINI_API_KEY_HERE";
+                                    GenerativeModel? _model;
+                                
+                                    AIConfig._();
+                                    
+                                    static final AIConfig _instance = AIConfig._();
+                                    
+                                    static AIConfig get instance => _instance;
+                                    
+                                    void init() {
+                                        _model = GenerativeModel(model: 'gemini-pro', apiKey: _apiKey);
+                                    }
+                                    
+                                    GenerativeModel get model => _model!;
+                                
+                                }
+                                ```
+                            </md-block>
+                        <li style="font-weight: bold;"> <b class="w-title">ks_google_ai.dart</b></li>
+                            <md-block>
+                                ```dart
+                                import 'package:flutter/material.dart';
+                                import 'package:flutter_markdown/flutter_markdown.dart';
+                                import 'package:google_generative_ai/google_generative_ai.dart';
+                                import 'core/config/gpt_config.dart';
+
+                                ///
+                                /// [KSGoogleAI]
+                                ///
+                                class KSGoogleAI extends StatefulWidget {
+                                    const KSGoogleAI({super.key});
+
+                                    @override
+                                    State<KSGoogleAI> createState() => _KSGoogleAIState();
+                                }
+
+                                class _KSGoogleAIState extends State<KSGoogleAI> {
+
+                                    final _messageController = TextEditingController();
+                                    final _scrollController = ScrollController();
+                                    final FocusNode _messageFieldFocus = FocusNode();
+                                    late final ChatSession _chat;
+                                    bool _loading = false;
+                                    
+                                    @override
+                                    void initState() {
+                                        _initGoogleAi();
+                                        super.initState();
+                                    }
+                                    
+                                    @override
+                                    void dispose() {
+                                        _messageController.dispose();
+                                        _scrollController.dispose();
+                                        super.dispose();
+                                    }
+
+                                    ///[initOpenAISdk]
+                                    void _initGoogleAi() async {
+                                        _chat = AIConfig.instance.model.startChat();
+                                        setState(() {
+                                            
+                                        });
+                                    }
+
+                                    ///
+                                    void _onSendMessage() async{
+                                        String message = _messageController.text;
+
+                                        setState(() {
+                                            _loading = true;
+                                        });
+
+                                        try {
+                                            var response = await _chat.sendMessage(
+                                                Content.text(message),
+                                            );
+                                            var text = response.text;
+
+                                            if (text == null) {
+                                                _showError('No response from API.');
+                                                return;
+                                            } else {
+                                                setState(() {
+                                                    _loading = false;
+                                                    _scrollDown();
+                                                });
+                                            }
+                                        } catch (e) {
+                                            _showError(e.toString());
+                                            setState(() {
+                                                _loading = false;
+                                            });
+                                        } finally {
+                                            _messageController.clear();
+                                            setState(() {
+                                                _loading = false;
+                                            });
+                                            _messageFieldFocus.requestFocus();
+                                        }
+                                    }
+                                    
+                                    ///
+                                    void _showError(String message) {
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                                return AlertDialog(
+                                                    title: const Text('Something went wrong'),
+                                                    content: SingleChildScrollView(
+                                                        child: SelectableText(message),
+                                                    ),
+                                                    actions: [
+                                                        TextButton(
+                                                            onPressed: () {
+                                                                Navigator.of(context).pop();
+                                                            },
+                                                            child: const Text('OK'),
+                                                        ),
+                                                    ],
+                                                );
+                                            },
+                                        );
+                                    }
+
+                                    ///
+                                    void _scrollDown() {
+                                        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollController.animateTo(
+                                            _scrollController.position.maxScrollExtent,
+                                                duration: const Duration( milliseconds: 750),
+                                                curve: Curves.easeOutCirc,
+                                            ),
+                                        );
+                                    }
+
+                                    @override
+                                    Widget build(BuildContext context) {
+                                        return Scaffold(
+                                            appBar: AppBar(
+                                                backgroundColor: Colors.purple,
+                                                title: const Text('KS GPT', style: TextStyle(color: Colors.white)),
+                                            ),
+                                            body: Column(
+                                                children: [
+                                                    Expanded(
+                                                        child: ListView.builder(
+                                                        padding: const EdgeInsets.all(8),
+                                                            controller: _scrollController,
+                                                            itemCount: _chat.history.length,
+                                                            itemBuilder: (context, index) {
+                                                                Content content = _chat.history.toList()[index];
+                                                                String text = content.parts.whereType<TextPart>().map<String>((e) => e.text) .join('');
+                                                                return MessageWidget(
+                                                                    text: text,
+                                                                    isFromUser: content.role == 'user',
+                                                                );
+                                                            },
+                                                        ),
+                                                    ),
+                                                    SafeArea(
+                                                        child: Padding(
+                                                            padding: const EdgeInsets.all(8.0),
+                                                            child: Row(
+                                                                children: [
+                                                                    const Icon(Icons.image, color: Colors.green),
+                                                                    const SizedBox(width: 8),
+                                                                    const Icon(Icons.attach_file, color: Colors.red),
+                                                                    const SizedBox(width: 8),
+                                                                    Expanded(
+                                                                        child: TextFormField(
+                                                                            focusNode: _messageFieldFocus,
+                                                                            controller: _messageController,
+                                                                            onFieldSubmitted: (value) {
+                                                                                _messageController.text = value;
+                                                                                _onSendMessage();
+                                                                            },
+                                                                            decoration: const InputDecoration(
+                                                                                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                                                                                    hintText: 'Enter your message here...',
+                                                                                    border: OutlineInputBorder(
+                                                                                        borderRadius: BorderRadius.all(Radius.circular(99))
+                                                                                    ),
+                                                                                    enabledBorder: OutlineInputBorder(
+                                                                                    borderRadius: BorderRadius.all(Radius.circular(99))
+                                                                                ),
+                                                                            ),
+                                                                        ),
+                                                                    ),
+                                                                    if (!_loading)
+                                                                        IconButton(
+                                                                            icon: const Icon(Icons.send, color: Colors.blue,),
+                                                                            onPressed: () {
+                                                                                _onSendMessage();
+                                                                            }, 
+                                                                        )
+                                                                    else 
+                                                                        CircularProgressIndicator(color: Colors.purple[300],),
+                                                                ],
+                                                            ),
+                                                        ),
+                                                    ),
+                                                ],
+                                            ),
+                                        );
+                                    }
+
+                                }
+
+                                ///
+                                /// [MessageWidget]
+                                ///
+                                class MessageWidget extends StatelessWidget {
+                                    final String text;
+                                    final bool isFromUser;
+
+                                    const MessageWidget({
+                                        super.key,
+                                        required this.text,
+                                        required this.isFromUser,
+                                    });
+
+                                    @override
+                                    Widget build(BuildContext context) {
+                                        return Row(
+                                            mainAxisAlignment: isFromUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+                                            children: [
+                                                Flexible(
+                                                    child: Container(
+                                                        constraints: const BoxConstraints(maxWidth: 600),
+                                                        decoration: BoxDecoration(
+                                                            color: isFromUser ? Colors.purple[50] : Colors.green[50],
+                                                            borderRadius: BorderRadius.circular(18),
+                                                        ),
+                                                        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                                                        margin: const EdgeInsets.only(bottom: 8),
+                                                        child: MarkdownBody(
+                                                            selectable: true,
+                                                            data: text,
+                                                        ),
+                                                    ),
+                                                ),
+                                            ],
+                                        );
+                                    }
+                                }
+
+                                ```
+                            </md-block>
+                            <li style="font-weight: bold;"> <b class="w-title">main.dart</b></li>
+                            <md-block>
+                                ```dart
+                                import 'package:flutter/material.dart';
+                                import 'core/config/gpt_config.dart';
+                                import 'ks_google_ai.dart';
+                                
+                                Future<void> main() async {
+                                
+                                    WidgetsFlutterBinding.ensureInitialized();
+                                    AIConfig.instance.init();
+                                    
+                                    runApp(
+                                        const MaterialApp(
+                                            home: KSGoogleAI(),
+                                        ),
+                                    );
+                                }
+                                ```
+                            </md-block>
+                    </ol>
+                <li style="font-weight: bold;"> <b class="w-title">Example Result</b></li>
+                <br>
+                <img src="../assets/blog/flutter_gemini_1.png" width="300px" height="600px">
+                <span></span>
+                <img src="../assets/blog/flutter_gemini_2.png" width="300px" height="600px">
+                <span></span>
+                <img src="../assets/blog/flutter_gemini.png" width="300px" height="600px">
+            </ol>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="copyright-box">
+                        <p class="copyright">&copy; Copyright <strong>Sowat Kheang</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 
+    <script src="../assets/js/custom_md.js"></script> -->
+    <script type="module" src="https://md-block.verou.me/md-block.js"></script>
+
+</body>
+
+</html>
+
