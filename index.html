@@ -63,7 +63,7 @@
                         </a>
                     </li>
                     <li>
-                        <a class="nav-link scrollto" href="https://tinyurl.com/5n73dh53" target="_blank">
+                        <a class="nav-link scrollto" href="https://shorturl.at/gluO3" target="_blank">
                             <img src="assets/img/cv.png" width="24px" height="24px">
                         </a>
                     </li>
@@ -144,7 +144,7 @@
                                             </h5>
                                         </div>
                                         <p class="lead">
-                                            As a seasoned IT professional with over 5 years of experience, I possess a
+                                            As a seasoned IT professional with over <span id="yearExp"> </span> years of experience, I possess a
                                             diverse skill set that encompasses <span class="title-s">Mobile App & API
                                                 development</span>.
                                         </p>
@@ -498,6 +498,9 @@
                                         </div>
                                         <div class="socials">
                                             <ul>
+                                                <li><a href="https://www.facebook.com/valen.sowat" target="_blank"><span
+                                                            class="ico-circle"><i class="bi bi-facebook"></i></span></a>
+                                                </li>
                                                 <li><a href="https://www.instagram.com/kheang_sowat"
                                                         target="_blank"><span class="ico-circle"><i
                                                                 class="bi bi-instagram"></i></span></a></li>
@@ -555,6 +558,28 @@
 
     <!-- Template Main JS File -->
     <script src="assets/js/main.js"></script>
+
+    <script>
+        window.addEventListener('load', () => {
+
+            // Get today's date
+            const today = new Date();
+
+            // Start Date
+            const startDate = new Date(2019, 3, 19); 
+
+            // Calculate difference in milliseconds
+            const differenceInMilliseconds = today.getTime() - startDate.getTime();
+
+            // Convert milliseconds to years (considering leap years is complex, this is an approximation)
+            const years = differenceInMilliseconds / (1000 * 60 * 60 * 24 * 365);
+
+            // Get the span element with id "yearExp"
+            const yearExpSpan = document.getElementById("yearExp");
+            // Set the text content of the span to the current year
+            yearExpSpan.textContent = Math.floor(years);
+        });
+    </script>
 
 </body>
 
