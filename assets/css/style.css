@@ -197,6 +197,20 @@ a:hover {
   bottom: -12px;
 }
 
+.title-left-hard {
+  font-size: 2rem;
+  position: relative;
+}
+
+.title-left-hard:before {
+  content: "";
+  position: absolute;
+  height: 3px;
+  background-color: #cf0707;
+  width: 100px;
+  bottom: -12px;
+}
+
 .title-left-medium {
   font-size: 2rem;
   position: relative;
