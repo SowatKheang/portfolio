@@ -4491,6 +4491,11 @@ img#certificate {
     height: 210px;
 }
 
+h3#htb-title-insane {
+    padding-left: 128px;
+    color: rgb(97, 97, 97);
+}
+
 h3#htb-title-hard {
     padding-left: 128px;
     color: rgb(200, 2, 2);
