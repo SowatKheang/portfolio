@@ -363,7 +363,7 @@
         }
 
         /* ═══════════════════════════════════════
-           ABOUT
+            ABOUT
         ═══════════════════════════════════════ */
         .about-grid {
             display: grid;
@@ -372,6 +372,16 @@
         }
 
         .about-text p {
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+        .about-text ul {
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+        .about-text li {
             color: var(--text-dim);
             margin-bottom: 1.5rem;
             font-size: 1rem;
