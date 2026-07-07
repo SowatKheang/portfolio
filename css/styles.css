@@ -630,6 +630,9 @@
         .diff-ctf { color: #7c4dff; }
         .diff-ctf .dot { background: #7c4dff; box-shadow: 0 0 10px rgba(124,77,255,0.5); }
 
+        .diff-fortress { color: #4d7aff; }
+        .diff-fortress .dot { background: #4d7aff; box-shadow: 0 0 10px rgba(77,122,255,0.5); }
+        
         .htb-machines {
             display: flex;
             flex-wrap: wrap;
@@ -649,6 +652,16 @@
             transition: border-color 0.3s;
         }
         .htb-badge:hover img { border-color: rgba(255,23,68,0.3); }
+
+        .season-entry {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+        .season-caption {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
 
         /* ═══════════════════════════════════════
            PUBLISHING
