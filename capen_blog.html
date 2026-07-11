@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I Took the CAPen: Sowat Kheang</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="css/blog.css">
+
+</head>
+<body>
+
+    <div class="wrap">
+        <a class="back" href="index.html">&larr; back to portfolio</a>
+
+        <header class="article-head">
+            <span class="kicker">Field Report</span>
+            <div id="article-title"><!-- title injected from markdown h1 --></div>
+            <div class="meta">
+                <span class="meta-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span id="read-time">About a 4&ndash;5 minute read</span>
+                </span>
+                <span class="dot">&bull;</span>
+                <span class="meta-item">The SecOps Group</span>
+                <span class="dot">&bull;</span>
+                <span class="meta-item">Web / AppSec</span>
+            </div>
+        </header>
+
+        <div id="markdown-content">
+            <!-- Markdown content will be rendered here -->
+        </div>
+
+        <footer class="article-foot">
+            <span>Sowat Kheang &verbar; Penetration Tester &verbar; Offensive Security</span>
+            <a href="index.html">&larr; portfolio</a>
+        </footer>
+    </div>
+
+    <script type="text/markdown" id="raw-markdown">
+        # I Took the CAPen (Certified AppSec Pentester), How to Prepare and What to Expect
+
+        *A field report and study guide from The SecOps Group's 4-hour practical web exam.*
+        
+        <img id="capen-cert" src="https://shadowroot23.sirv.com/Images/certs/capen.png" alt="CAPen">
+
+        ---
+
+        If you live in Burp Repeater and think in HTTP requests, the **Certified AppSec Pentester (CAPen)** from The SecOps Group is a satisfying afternoon. It's not a memory test and it's not a slideshow; it's four hours, a VPN, and a set of deliberately vulnerable web apps that want you to prove you can actually *find* and *exploit* things. Here's what the exam is really like and how I'd tell a friend to prepare.
+
+        ## The format, in plain terms
+
+        - **Duration:** 4 hours and 15 minutes, online and on-demand over a VPN.
+        - **Style:** practical challenges, you attack real apps and capture flags, with some multiple-choice framing on top of the hands-on work.
+        - **Passing:** 60% to pass, 75% for a *Pass with Merit*.
+        - **Rules:** standard pentest tooling is fine; **AI assistants are prohibited**. You get one free retake inside the exam fee.
+        - **Level:** intermediate. They recommend ~2 years of pentest or bug-bounty experience, and honestly that's about right, not because the exam is exotic, but because it rewards fluency.
+
+        The certificate doesn't expire; it's stamped with the version and date you sat it.
+
+        ## What the exam actually tests
+
+        The syllabus reads like the greatest hits of web security, and the challenges deliver exactly that. From my run, expect to touch most of these:
+
+        - **TLS / crypto hygiene**: enumerate the supported cipher suites and spot the odd one out.
+        - **Broken authentication**: a password-reset flow with a predictable, weakly-derived token. No real randomness, no expiry → full account takeover.
+        - **Username enumeration**: no obvious status leak, but a tiny, easy-to-miss difference in the response distinguished real accounts from fake ones.
+        - **IDOR / broken access control**: an endpoint that trusted a client-supplied identifier, wrapped in a bit of encoding that looked like security but wasn't.
+        - **SQL injection with a blacklist**: blind extraction plus a keyword filter you have to reason your way around.
+        - **XXE**: with a twist: an anti-CSRF token you have to work *with* before the payload will land.
+        - **File upload → RCE**: get past the filter, then solve the harder problem of getting your file to actually execute, and read the flag.
+        - **Cloud misconfig**: a leaked cloud credential that pivots into storage you shouldn't be able to see.
+
+        If you can attack all of the above without reaching for a walkthrough, you're ready.
+
+        ## The three lessons that mattered most
+
+        **1. Read the client-side code. All of it.**
+        The single highest-yield habit was reading every line of JavaScript the app shipped to my browser. More than one finding was hiding in plain sight there. View-source and the network tab are recon tools, not afterthoughts and don't ignore stray metadata or leftover files that quietly map out hidden parts of the app.
+
+        **2. Small signals win.** Some of my findings hinged on details most people would scroll right past, a subtle difference between two responses, the exact length or shape of a value, the wording of an error. Watch response length, timing, and error messages like a hawk. The obvious status field will sometimes lie; a quieter signal tells the truth.
+
+        **3. Obfuscation is not a control and neither is the client.** Encoded values, browser-side validation, extension filters: several defenses were built to *look* like security without being it. When a check runs in the browser or a value is merely scrambled rather than protected, assume it's bypassable and go prove it.
+
+        ## How I'd prepare
+
+        **Get fluent in Burp.** Proxy, Repeater, and Intruder should be muscle memory. Nearly everything routed through Repeater, and Intruder did the enumeration heavy-lifting. Know how to turn a manual finding into an automated sweep.
+
+        **Drill the OWASP Top 10 as *exploitation*, not trivia.** PortSwigger Web Security Academy is the single best free prep; its labs map almost one-to-one onto the exam's flavor of SQLi, XXE, access control, and auth flaws. Do the blind-SQLi and file-upload tracks especially.
+
+        **Keep your reps up on live targets.** I play Hack The Box seasonally, and that turned out to be great background prep; the seasonal machines keep you sharp on real recon, enumeration, and chaining primitives under a clock, which is exactly the muscle CAPen exercises. Regular HTB (or similar) sessions mean you walk into the exam already warmed up instead of cold.
+
+        **Practice the boring plumbing:**
+        - TLS enumeration tools like `sslscan` and `testssl.sh`, plus how OpenSSL behaves with legacy ciphers.
+        - The everyday encoding/hashing shell tools; being able to recognize what a value *is* on sight saves real time.
+        - AWS CLI fundamentals: authenticating with a set of keys, confirming who you are, and enumerating storage.
+        - At least one file-upload-to-RCE chain practiced end to end, so the moving parts are familiar.
+
+        **Write your own scripts ahead of time.** Since AI is off the table, having a few reusable helpers in your notes, for blind extraction, enumeration sweeps, and comparing responses, is worth real minutes. Templated `curl` loops beat clicking under time pressure.
+
+        **Do the free mock, don't be like me.** SecOps gives you one, and I skipped it. Don't. It's there to shake out VPN quirks, environment issues, and the exam's question style *before* the clock is running, so exam day is pure hacking instead of fighting your setup. Ten minutes of "does my connection even work" is ten minutes you don't want to burn during the real thing.
+
+        **Resources worth bookmarking:**
+        - [PortSwigger Web Security Academy](https://portswigger.net/web-security): free, hands-on labs that mirror the exam's flavor almost exactly.
+        - [PayloadsAllTheThings](https://github.com/swisskyrepo/payloadsallthethings): the payload/technique reference to keep open in a tab; when you know the vuln class but need the right syntax, it's here.
+        - [CWES Cheatsheet](https://nalchhen.com/posts/cwes-cheatsheet/): a compact map of tools, techniques dealing web exploitation.
+
+        ## What to expect on the day
+
+        Four hours goes fast, so triage. Do a full pass first: hit every target, note the surface, and grab the flags that fall quickly. Then circle back for the multi-step chains; those are the ones that eat time.
+
+        Keep a running notes file with every request, cookie, and token you capture. Watch out for session timeouts: they can throw a misleading "session expired" message that looks like a failed exploit when you really just need to re-authenticate and move on. And remember you only need 60%; don't rabbit-hole on one flag while three easier ones sit untouched. If you get stuck, go back to recon.
+
+        ## Bottom line
+
+        CAPen is a fair, well-built exam that rewards exactly the skills a working web pentester uses: careful recon, reading the code that ships to the browser, noticing small signals, and chaining primitives into impact. Prepare by *doing*, labs, not videos, get comfortable in Burp and the shell, pre-write your scripts, and treat every client-side control as a dare.
+
+        Read the JavaScript. Watch the byte count. Trust nothing that runs in the browser. Do that, and four hours is plenty.
+
+        *Good luck, go catch the flag.* 🚩
+    </script>
+
+    <script>
+        // Strip the common leading indentation so the inline <script> block's
+        // HTML indentation isn't parsed as a Markdown code block.
+        function dedent(text) {
+            const lines = text.replace(/^\n+/, '').replace(/\s+$/, '').split('\n');
+            const indents = lines
+                .filter(l => l.trim().length)
+                .map(l => l.match(/^[ \t]*/)[0].length);
+            const min = indents.length ? Math.min(...indents) : 0;
+            return lines.map(l => l.slice(min)).join('\n');
+        }
+
+        const raw = dedent(document.getElementById('raw-markdown').textContent);
+        const content = document.getElementById('markdown-content');
+        content.innerHTML = marked.parse(raw);
+
+        const h1 = content.querySelector('h1');
+        if (h1) document.getElementById('article-title').appendChild(h1);
+
+        const paras = content.querySelectorAll('p');
+        for (const p of paras) {
+            if (!p.querySelector('em') || p.textContent.trim().length > 120) {
+                p.classList.add('lead');
+                break;
+            }
+        }
+
+        const words = raw.trim().split(/\s+/).length;
+        const mins = Math.max(1, Math.floor(words / 260));
+        document.getElementById('read-time').textContent =
+            'About a ' + mins + '–' + (mins + 1) + ' minute read';
+    </script>
+
+</body>
+</html>
